@@ -1,0 +1,75 @@
+ # =================================================#
+ # The parameters used in my program m=1g/mol, k=1eV/Angstrom, a=1Angstrom
+ # Originally written by Yanguang Zhou
+ # Modified by Zheyi Zhang from DUT
+ ##==============================================##
+ variable        T_equilibrium     equal  1e5   # 100ps
+ variable        E_equilibrium     equal  1e6   # 1ns
+ variable        Tfinal            equal  300
+ 
+ #==============The head of the programm===================#
+ #====The order of Shell can not be used in the Windows====#
+ 
+ dimension       3
+ boundary        p   p   p
+ units           metal
+ atom_style      atomic
+ processors      * * *
+ newton          on
+  
+ #====================Atomic Structure======================#
+ 
+ read_restart    ../../Optimize/tmp1.restart2
+
+ #==================potential======================#  
+ pair_style      vashishta/xiaoliang
+ pair_coeff      * *  /public/home/xdsc0365/software/lammps-7Aug19_correct/potentials/SiO.1997.vashishta O Si
+ neighbor        2.0    nsq
+ timestep        0.001
+ 
+ variable        Tdamp    equal    100*dt
+ variable        Pdamp    equal    1000*dt
+   
+ compute         MyTemp  all  temp   
+ thermo_style    custom  step temp c_MyTemp etotal press vol
+ thermo_modify   flush   yes temp MyTemp lost warn
+ thermo          1000 
+ reset_timestep  0
+ 
+#===================The ensemble===================#
+
+ restart         1000   tmp.restart1 tmp.restart2
+ velocity        all      create  ${Tfinal} 7675423 mom yes rot yes dist gaussian temp MyTemp
+ fix             nvt      all     nvt  temp  ${Tfinal} ${Tfinal} ${Tdamp}
+ run             ${T_equilibrium} 
+ unfix           nvt
+ 
+ #dump            config all custom 1 wp.config.* id type x y z
+ #dump_modify     config sort  id
+ #dump_modify     config format line "%7d %3d %20.12g %20.12g %20.12g"
+ #run             0    
+ #undump          config  
+ 
+ fix             nve      all     nve 
+ compute         KE       all     ke/atom
+ compute         PE       all     pe/atom 
+ compute	 strs     all     stress/atom NULL virial   
+ compute         J 	  all     heat/flux KE PE strs
+ variable        Jx       equal   c_J[1]
+ variable        Jy       equal   c_J[2]
+ variable        Jz       equal   c_J[3]
+ variable        CJx      equal   c_J[4]
+ variable        CJy      equal   c_J[5]
+ variable        CJz      equal   c_J[6]  
+ variable        V        equal   vol  
+ variable        V0       equal   $V 
+ fix             Q        all     ave/time  10 1 10 v_V v_Jx v_Jy v_Jz v_CJx v_CJy v_CJz file J.dat ave one 
+
+ dump            config all custom 100000 wp.config.* id type x y z
+ dump_modify     config sort  id
+ dump_modify     config format line "%7d %3d %20.12g %20.12g %20.12g"
+ run             ${E_equilibrium} 
+ restart         0
+ undump          config
+ 
+#===================== end===========================
