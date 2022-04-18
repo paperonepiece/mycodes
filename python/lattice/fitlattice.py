@@ -1,7 +1,7 @@
 import math
 import os
 import numpy as np
-
+# fit energy-lattice curve by using the data of energy with different lattice size
 olddir = os.getcwd()
 os.chdir(olddir)
 read1 = open("energy.dat", "r+")
