@@ -44,15 +44,15 @@ E2 = sum(final)/len(final)
 dE = E2 - E1   #ev
 dE_dT  = dE/dT             # eV/K
 
-Cv_Cal = dE_dT*eV/K/mass   # J/kgK
-Cv_Cal_V = dE_dT*eV/K/mass*density # J/m3K
-Cv_Ref = 966               # J/kgK Ref: https://www.periodic-table.org/copper-specific-heat/
+Cp_Cal = dE_dT*eV/K/mass   # J/kgK
+Cp_Cal_V = dE_dT*eV/K/mass*density # J/m3K
+Cp_Ref = 966               # J/kgK Ref: https://www.periodic-table.org/copper-specific-heat/
 #==============Output===============#
 print()
-print('Cv_Cal = ', Cv_Cal, ' J/kgK')
-print('Cv_Cal_V = ', Cv_Cal_V, ' J/kgK')
-print('Cv_Ref = ', Cv_Ref, ' J/kgK','#this ref stands for crystalline SiO2')
+print('Cp_Cal = ', Cp_Cal, ' J/kgK')
+print('Cp_Cal_V = ', Cp_Cal_V, ' J/kgK')
+print('Cp_Ref = ', Cp_Ref, ' J/kgK','#this ref stands for crystalline SiO2')
 print()
-with open('Cvout.dat','w') as fid:
+with open('Cp.dat','w') as fid:
     fid.write('Cv_Cal = '+format(Cv_Cal,'^.4f')+' J/kgK'+'\n')
     fid.write('Cv_Cal_V = '+format(Cv_Cal_V,'^.4f')+' J/m3K')
